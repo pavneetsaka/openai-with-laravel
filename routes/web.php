@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    $chat = new Chat();
+    /*$chat = new Chat();
 
     $poem = $chat->systemMessage("You are a poetic assistant, skilled in explaining complex programming concepts with creative flair.")->send('Compose a poem that explains the concept of recursion in programming.');
 
@@ -24,5 +24,34 @@ Route::get('/', function () {
 
     return view('welcome', [
         'poem' => $sillyPoem
+    ]);*/
+
+    /*Text to speech*/
+    return view('roast');
+});
+
+Route::post('/roast', function(){
+    $attributes = request()->validate([
+        'topic' => 'required|min:2|max:50'
+    ]);
+
+    $chat = new Chat();
+    $prompt = "Please roast {$attributes['topic']} in sarcastic tone.";
+    $mp3 = $chat->send(
+        message: $prompt,
+        speech: true
+    );
+
+    $directory = public_path().'/roasts';
+    if (!is_dir($directory)) {
+        mkdir($directory);
+    }
+
+    $file = $directory."/".md5($mp3).".mp3";
+    file_put_contents($file, $mp3);
+
+    return redirect('/')->with([
+        'file' => $file,
+        'flash' => 'Boom. Roasted.'
     ]);
 });

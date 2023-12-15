@@ -42,16 +42,17 @@ Route::post('/roast', function(){
         speech: true
     );
 
-    $directory = public_path().'/roasts';
+    $folder = '/roasts';
+    $directory = public_path().$folder;
     if (!is_dir($directory)) {
         mkdir($directory);
     }
 
-    $file = $directory."/".md5($mp3).".mp3";
-    file_put_contents($file, $mp3);
+    $file = md5($mp3).".mp3";
+    file_put_contents($directory."/".$file, $mp3);
 
     return redirect('/')->with([
-        'file' => $file,
+        'file' => $folder.'/'.$file,
         'flash' => 'Boom. Roasted.'
     ]);
 });

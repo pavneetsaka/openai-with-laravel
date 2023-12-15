@@ -12,7 +12,7 @@
         @if(session('file'))
         <div>
             <h1 class="text-center font-semibold mb-3 text-3xl">{{ session('flash') }}</h1>
-            <a href="{{ asset(session('file')) }}" download class="block w-full text-center bg-gray-200 p-2 hover:bg-blue-400 hover:text-white">Download Audio</a>
+            <a href="{{ asset(session('file')) }}" download class="block rounded w-full text-center bg-gray-200 p-2 hover:bg-blue-400 hover:text-white">Download Audio</a>
         </div>
         @else
         <form action="/roast" method="POST" accept-charset="utf-8">

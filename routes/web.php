@@ -1,6 +1,8 @@
 <?php
 
-use App\AI\Chat;
+use App\AI\Assistant;
+use App\Rules\SpamFree;
+use OpenAI\Laravel\Facades\OpenAI;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
@@ -27,15 +29,21 @@ Route::get('/', function () {
     ]);*/
 
     /*Text to speech*/
-    return view('roast');
+    /*return view('text-to-img', [
+        'messages' => session('messages', [])
+    ]);*/
 });
 
+/*Text to speech*/
+Route::get('/text-to-speech', function(){
+    return view('roast');
+});
 Route::post('/roast', function(){
     $attributes = request()->validate([
         'topic' => 'required|min:2|max:50'
     ]);
 
-    $chat = new Chat();
+    $chat = new Assistant();
     $prompt = "Please roast {$attributes['topic']} in sarcastic tone.";
     $mp3 = $chat->send(
         message: $prompt,
@@ -55,4 +63,42 @@ Route::post('/roast', function(){
         'file' => $folder.'/'.$file,
         'flash' => 'Boom. Roasted.'
     ]);
+});
+
+/*Text to Image*/
+Route::get('text-to-img', function(){
+    return view('text-to-img', [
+        'messages' => session('messages', [])
+    ]);
+});
+Route::post('/image', function(){
+    $attributes = request()->validate([
+        'description' => 'required|min:3|string'
+    ]);
+
+    $assistant = new Assistant(session('messages', []));
+
+    $url = $assistant->visualize($attributes['description']);
+
+    session('messages', $assistant->messages());
+
+    return redirect('/');
+});
+
+/*AI to detect comment span*/
+Route::get('comment', function(){
+    return view('comment-box');
+});
+Route::post('/post-comment', function(){
+    $attributes = request()->validate([
+        'body' => [
+            'required',
+            'string',
+            new SpamFree()
+        ]
+    ]);
+
+
+
+    return $response->is_spam ? 'THIS IS SPAM' : 'VALID POST';
 });
